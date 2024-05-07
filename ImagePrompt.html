@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base target="_top">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 10px;
+    }
+    textarea {
+      width: 100%;
+      height: 150px;
+      padding: 10px;
+      box-sizing: border-box;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+      margin-bottom: 10px;
+      resize: none;
+    }
+    button {
+      width: 100%;
+      padding: 10px;
+      background-color: #007bff; 
+      border: none;
+      color: white;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+    /* Стили для индикатора загрузки */
+    .loading-button {
+      background-color: #cccccc;
+      cursor: not-allowed;
+    }
+  </style>
+</head>
+<body>
+  <textarea id="promptInput" placeholder="Введите ваш запрос на генерацию изображения..."></textarea>
+  <button id="submitButton" onclick="submitPrompt()">Генерировать изображение</button>
+  <script>
+    function submitPrompt() {
+      var prompt = document.getElementById('promptInput').value;
+      var button = document.getElementById('submitButton');
+      button.textContent = 'Загрузка...'; // Изменяем текст кнопки
+      button.disabled = true; // Делаем кнопку неактивной
+      button.classList.add('loading-button'); // Применяем стили для индикатора загрузки
+
+      google.script.run
+        .withSuccessHandler(function(response) {
+          button.textContent = 'Отправить'; // Восстанавливаем текст кнопки
+          button.disabled = false; // Снова делаем кнопку активной
+          button.classList.remove('loading-button'); // Убираем стили загрузки
+          google.script.host.close(); // Закрываем диалог после отправки
+          SpreadsheetApp.getUi().alert('Изображение успешно добавлено.');
+        })
+        .withFailureHandler(function(error) {
+          button.textContent = 'Ошибка, попробуйте снова';
+          button.disabled = false;
+          button.classList.remove('loading-button');
+          google.script.host.close(); // Закрываем диалог после ошибки
+          SpreadsheetApp.getUi().alert('Ошибка: ' + error.toString());
+        })
+        .MKF_IMG(prompt);
+    }
+  </script>
+</body>
+</html>
